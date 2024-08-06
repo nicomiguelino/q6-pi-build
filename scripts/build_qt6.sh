@@ -16,8 +16,8 @@ function install_cross_build_tools() {
     fi
 
     if [ ! -f "$GLIBC_PATH" ]; then
-        tar xf $GLIBC_PATH
         wget https://ftp.nluug.nl/pub/gnu/glibc/$GLIBC_PATH
+        tar xf $GLIBC_PATH
     fi
 
     if [ ! -f "$GCC_PATH" ]; then
