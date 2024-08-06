@@ -1,4 +1,4 @@
-# Qt6 Build for Raspberry Pi
+# Qt 6 Build for Raspberry Pi
 
 ## Getting Started
 

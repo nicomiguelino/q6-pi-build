@@ -85,4 +85,4 @@ RUN mkdir /scripts
 WORKDIR /build
 
 # Create a directory for the tools and change into it
-RUN mkdir cross-tools && cd cross-tools 2>&1 | tee -a /build.log
+# RUN mkdir cross-tools && cd cross-tools 2>&1 | tee -a /build.log
