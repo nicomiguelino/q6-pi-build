@@ -14,6 +14,7 @@ RUN_ARGS=(
     "--name" "temp-cross-$TARGET_DEVICE"
     "-v" "$PWD/build:/build:Z"
     "-v" "./scripts/build_qt6.sh:/scripts/build_qt6.sh"
+    "-v" "./opt/cross-pi-gcc:/opt/cross-pi-gcc"
     "cross-$TARGET_DEVICE"
 )
 

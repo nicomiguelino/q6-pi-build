@@ -36,6 +36,9 @@ function download_toolchain() {
 }
 
 function compile_toolchain() {
+    export PATH=/opt/cross-pi-gcc/bin:$PATH
+    mkdir -p /opt/cross-pi-gcc
+
     cd /build/cross-tools/linux/
     KERNEL=kernel8
     make ARCH=arm64 INSTALL_HDR_PATH=/opt/cross-pi-gcc/aarch64-linux-gnu headers_install
@@ -96,10 +99,6 @@ function compile_toolchain() {
 
 function main() {
     download_toolchain
-
-    mkdir -p /opt/cross-pi-gcc
-    export PATH=/opt/cross-pi-gcc/bin:$PATH
-
     compile_toolchain
 }
 
