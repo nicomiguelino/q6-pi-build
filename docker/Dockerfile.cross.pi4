@@ -81,6 +81,8 @@ RUN { \
 
 RUN mkdir /scripts
 
+COPY ./rasp.tar.gz /tmp/rasp.tar.gz
+
 # Set the working directory to /build
 WORKDIR /build
 

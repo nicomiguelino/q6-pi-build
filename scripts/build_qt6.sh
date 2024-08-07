@@ -97,9 +97,29 @@ function compile_toolchain() {
     echo "Is finished"
 }
 
+function setup_sysroot() {
+    cd /build
+    mkdir -p sysroot sysroot/usr sysroot/opt
+    cp /tmp/rasp.tar.gz .
+    tar xfz /build/rasp.tar.gz -C /build/sysroot
+
+    if [ ! -d "./firmware" ]; then
+        git clone --depth=1 https://github.com/raspberrypi/firmware firmware
+    fi
+
+    if [ -d "./firmware/opt" ]; then
+        cp -r ./firmware/opt sysroot
+    else
+        echo "./firmware/opt does not exist. Skipping..."
+    fi
+}
+
 function main() {
     download_toolchain
     compile_toolchain
+    setup_sysroot
+
+    # TODO: Create a `toolchain.cmake` file.
 }
 
 main
