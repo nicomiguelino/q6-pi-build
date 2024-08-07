@@ -40,6 +40,11 @@ function compile_toolchain() {
     KERNEL=kernel8
     make ARCH=arm64 INSTALL_HDR_PATH=/opt/cross-pi-gcc/aarch64-linux-gnu headers_install
 
+    if [ -d "/opt/cross-pi-gcc/bin" ] && [ "$(ls -A /opt/cross-pi-gcc/bin)" ]; then
+        echo "Toolchain already exists."
+        return
+    fi
+
     cd ../
     mkdir -p build-binutils && cd build-binutils
     ../binutils-2.40/configure --prefix=/opt/cross-pi-gcc --target=aarch64-linux-gnu --with-arch=armv8 --disable-multilib
