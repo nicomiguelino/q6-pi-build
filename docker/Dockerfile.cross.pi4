@@ -79,7 +79,7 @@ RUN { \
     rm -rf /var/lib/apt/lists/*; \
 } 2>&1 | tee -a /build.log
 
-RUN mkdir /scripts
+RUN mkdir -p /scripts /src
 
 COPY ./rasp.tar.gz /tmp/rasp.tar.gz
 
