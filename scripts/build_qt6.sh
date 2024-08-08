@@ -191,6 +191,14 @@ function install_qt() {
     echo "Compilation is finished"
 }
 
+function create_qt_archive() {
+    cd /build
+    mkdir -p release && cd release
+    tar -czvf qt-host-binaries.tar.gz -C /build/qt6/host .
+    tar -czvf cross-pi-gcc.tar.gz -C /opt/cross-pi-gcc .
+    tar -czvf qt-pi-binaries.tar.gz -C /build/qt6/pi .
+}
+
 function main() {
     download_toolchain
     compile_toolchain
@@ -198,8 +206,8 @@ function main() {
     copy_toolchain_cmake
 
     fix_symbolic_links
-
     install_qt
+    create_qt_archive
 }
 
 main
