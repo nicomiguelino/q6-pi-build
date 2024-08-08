@@ -16,6 +16,7 @@ RUN_ARGS=(
     "-v" "./scripts/build_qt6.sh:/scripts/build_qt6.sh"
     "-v" "./toolchain.cmake:/src/toolchain.cmake"
     "-v" "./opt/cross-pi-gcc:/opt/cross-pi-gcc"
+    "-v" "./examples:/src/examples"
     "cross-$TARGET_DEVICE"
 )
 
