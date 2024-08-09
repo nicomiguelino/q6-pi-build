@@ -1,0 +1,7 @@
+services:
+  main:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.pi
+    stdin_open: true
+    tty: true
