@@ -7,8 +7,11 @@ Make sure that you have Docker installed.
 ## Usage
 
 ```bash
-./scripts/build_target.sh && ./scripts/build_cross.sh
-docker exec -it temp-cross-pi4 bash
+$ ./scripts/build_target.sh && ./scripts/build_cross.sh
+$ docker exec -it temp-cross-pi4 bash
+
+$ cd /build
+$ /scripts/build_qt6.sh
 ```
 
 ## References
