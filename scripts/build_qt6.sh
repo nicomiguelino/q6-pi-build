@@ -232,9 +232,9 @@ function install_qt() {
 function create_qt_archive() {
     cd /build
     mkdir -p release && cd release
-    tar -czvf qt-host-binaries.tar.gz -C /build/qt6/host .
-    tar -czvf cross-pi-gcc.tar.gz -C /opt/cross-pi-gcc .
-    tar -czvf qt-pi-binaries.tar.gz -C /build/qt6/pi .
+    tar -czvf qt-host-binaries-aarch64.tar.gz -C /build/qt6/host .
+    tar -czvf cross-pi-gcc-aarch64.tar.gz -C /opt/cross-pi-gcc .
+    tar -czvf qt-pi-binaries-aarch64.tar.gz -C /build/qt6/pi .
 }
 
 function main() {
@@ -245,7 +245,7 @@ function main() {
 
     fix_symbolic_links
     install_qt
-    # create_qt_archive # TODO: Uncomment this line to create the archive.
+    create_qt_archive
 }
 
 main
