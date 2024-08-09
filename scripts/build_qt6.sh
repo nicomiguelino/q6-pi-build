@@ -126,12 +126,13 @@ function fix_symbolic_links() {
 
     echo "Fix symbollic links"
 
-    if [ -f "${SYSROOT_RELATIVE_LINKS_SCRIPT}" ]; then
+    if [ ! -f "${SYSROOT_RELATIVE_LINKS_SCRIPT}" ]; then
+        echo "Downloading ${SYSROOT_RELATIVE_LINKS_SCRIPT}..."
+        wget "${SYSROOT_RELATIVE_LINKS_DOWNLOAD_URL}"
+    else
         echo "Script ${SYSROOT_RELATIVE_LINKS_SCRIPT} already exists. Skipping download..."
-        return
     fi
 
-    wget "${SYSROOT_RELATIVE_LINKS_DOWNLOAD_URL}"
     chmod +x sysroot-relativelinks.py
     python3 sysroot-relativelinks.py /build/sysroot
 }
