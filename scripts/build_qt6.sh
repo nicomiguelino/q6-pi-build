@@ -210,7 +210,7 @@ function install_qt() {
         -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
         -DCMAKE_TOOLCHAIN_FILE=/build/toolchain.cmake \
         -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON \
-        -DQT_FEATURE_xlib=ON
+        -DQT_FEATURE_xlib=ON -DFEATURE_eglfs=ON
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
