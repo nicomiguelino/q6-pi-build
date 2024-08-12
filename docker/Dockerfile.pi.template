@@ -19,11 +19,11 @@ RUN apt-get -y update && \
 WORKDIR /app
 
 RUN mkdir -p /usr/local/qt6
-RUN wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.1/Hello2.tar.gz && \
-    tar -xf Hello2.tar.gz -C /app
+RUN wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.3/Hello && \
+    chmod +x Hello
 RUN cd /tmp && \
-    wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.1/qt-pi-binaries-pi4.tar.gz && \
-    tar -xf qt-pi-binaries-pi4.tar.gz -C /usr/local/qt6
+    wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.3/qt-pi-binaries-aarch64.tar.gz && \
+    tar -xf qt-pi-binaries-aarch64.tar.gz -C /usr/local/qt6
 
 ENV QT_QPA_PLATFORM=linuxfb
 ENV LD_LIBRARY_PATH=/usr/local/qt6/lib/
