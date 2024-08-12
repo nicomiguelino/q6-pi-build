@@ -12,9 +12,11 @@ if [[ ! $TARGET_DEVICE =~ ^(pi3|pi4|x86)$ ]]; then
 fi
 
 function main() {
-    if [[ $TARGET_DEVICE =~ ^(pi3|pi4)$ ]]; then
+    if [[ "$TARGET_DEVICE" == "pi3" ]]; then
         export BASE_IMAGE_NAME="balenalib/raspberrypi3-debian"
-    else
+    elif [[ "$TARGET_DEVICE" == "pi4" ]]; then
+        export BASE_IMAGE_NAME="balenalib/raspberrypi4-64-debian"
+    elif [[ "$TARGET_DEVICE" == "x86" ]]; then
         export BASE_IMAGE_NAME="balenalib/intel-nuc-debian"
     fi
 

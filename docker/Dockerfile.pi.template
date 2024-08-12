@@ -1,3 +1,26 @@
 FROM ${BASE_IMAGE_NAME}:${BASE_IMAGE_TAG}
 
+RUN apt-get -y update && \
+    apt-get install -y --no-install-recommends \
+        python3 \
+        python3-pip \
+        libts-dev \
+        libgles2-mesa \
+        libxkbcommon-x11-0 \
+        libmtdev-dev \
+        libts-dev \
+        wget
+
+WORKDIR /app
+
+RUN mkdir -p /usr/local/qt6
+RUN wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.1/Hello2.tar.gz && \
+    tar -xf Hello2.tar.gz -C /app
+RUN cd /tmp && \
+    wget https://github.com/nicomiguelino/qt6-pi-build/releases/download/v0.0.1/qt-pi-binaries-pi4.tar.gz && \
+    tar -xf qt-pi-binaries-pi4.tar.gz -C /usr/local/qt6
+
+ENV QT_QPA_PLATFORM=linuxfb:fb=/dev/fb0
+ENV LD_LIBRARY_PATH=/usr/local/qt6/lib/
+
 CMD ["bash"]
