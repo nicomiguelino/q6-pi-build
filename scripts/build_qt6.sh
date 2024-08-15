@@ -147,6 +147,7 @@ function install_qt() {
         "qtbase-everywhere-src-${QT_VERSION}.tar.xz"
         "qtshadertools-everywhere-src-${QT_VERSION}.tar.xz"
         "qtdeclarative-everywhere-src-${QT_VERSION}.tar.xz"
+        "qtwebengine-everywhere-src-${QT_VERSION}.tar.xz"
     )
     QT6_DIR="/build/qt6"
     QT6_SRC_PATH="${QT6_DIR}/src"
@@ -174,7 +175,7 @@ function install_qt() {
         tar xf ${QT6_SRC_PATH}/${QT_ARCHIVE_FILE}
     done
 
-    echo "Compile qtbase for host"
+    echo "Compile Qt Base for the Host"
     cd ${QT6_HOST_BUILD_PATH}/qtbase-everywhere-src-${QT_VERSION}
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
         -DQT_BUILD_EXAMPLES=OFF \
@@ -183,14 +184,20 @@ function install_qt() {
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile shader for host"
+    echo "Compile Qt Shader Tools for the Host"
     cd ${QT6_HOST_BUILD_PATH}/qtshadertools-everywhere-src-${QT_VERSION}
     /build/qt6/host/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile declerative for host"
+    echo "Compile Qt Declarative for the Host"
     cd ${QT6_HOST_BUILD_PATH}/qtdeclarative-everywhere-src-${QT_VERSION}
+    /build/qt6/host/bin/qt-configure-module .
+    cmake --build . --parallel "${CORE_COUNT}"
+    cmake --install .
+
+    echo "Compile Qt WebEngine for host"
+    cd ${QT6_HOST_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
     /build/qt6/host/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
@@ -201,7 +208,7 @@ function install_qt() {
         tar xf ${QT6_SRC_PATH}/${QT_ARCHIVE_FILE}
     done
 
-    echo "Compile qtbase for rasp"
+    echo "Compile Qt Base for the Raspberry Pi"
     cd ${QT6_PI_BUILD_PATH}/qtbase-everywhere-src-${QT_VERSION}
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DINPUT_opengl=es2 \
         -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF \
@@ -210,21 +217,28 @@ function install_qt() {
         -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
         -DCMAKE_TOOLCHAIN_FILE=/build/toolchain.cmake \
         -DQT_FEATURE_xcb=ON -DFEATURE_xcb_xlib=ON \
-        -DQT_FEATURE_xlib=ON -DFEATURE_eglfs=ON
+        -DQT_FEATURE_xlib=ON -DFEATURE_xcb=ON -DFEATURE_eglfs=ON
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile shader for rasp"
+    echo "Compile Qt Shader Tools for the Raspberry Pi"
     cd ${QT6_PI_BUILD_PATH}/qtshadertools-everywhere-src-${QT_VERSION}
     ${QT6_PI_STAGING_PATH}/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile declerative for rasp"
+    echo "Compile Qt Declarative for the Raspberry Pi"
     cd ${QT6_PI_BUILD_PATH}/qtdeclarative-everywhere-src-${QT_VERSION}
     ${QT6_PI_STAGING_PATH}/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
+
+    echo "Compile Qt WebEngine for the Raspberry Pi"
+    cd ${QT6_PI_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
+    ${QT6_PI_STAGING_PATH}/bin/qt-configure-module .
+    # TODO: Uncomment the lines below once the configuration is fixed.
+    # cmake --build . --parallel "${CORE_COUNT}"
+    # cmake --install .
 
     echo "Compilation is finished"
 }

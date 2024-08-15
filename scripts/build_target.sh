@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-export TARGET_DEVICE="pi4"
+export TARGET_DEVICE="pi5"
 export TARGET_PLATFORM="linux/arm64"
 
 BUILDX_ARGS=(

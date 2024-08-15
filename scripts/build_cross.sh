@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-export TARGET_DEVICE="pi4"
+export TARGET_DEVICE="pi5"
 
 BUILD_ARGS=(
     "-f" "docker/Dockerfile.cross.$TARGET_DEVICE"
