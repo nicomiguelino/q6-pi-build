@@ -16,6 +16,7 @@ $ /scripts/build_qt6.sh
 
 ## References
 
+* https://wiki.qt.io/RaspberryPiWithQt6WebEngine
 * https://github.com/PhysicsX/QTonRaspberryPi
 * https://wiki.qt.io/Cross-Compile_Qt_6_for_Raspberry_Pi
 * https://www.tal.org/tutorials/building-qt-65-raspberry-pi-raspberry-pi-os
