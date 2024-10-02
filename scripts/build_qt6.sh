@@ -9,6 +9,11 @@ if [ "${DEBUG:-0}" -ne 0 ]; then
 fi
 
 CORE_COUNT="$(expr $(nproc) - 2)"
+QT_MAJOR='6'
+QT_MINOR='6'
+QT_PATCH='3'
+QT_VERSION="${QT_MAJOR}.${QT_MINOR}.${QT_PATCH}"
+DEBIAN_VERSION='bookworm'
 
 function setup_sysroot() {
     cd /build
@@ -49,10 +54,6 @@ function fix_symbolic_links() {
 }
 
 function install_qt() {
-    QT_MAJOR='6'
-    QT_MINOR='6'
-    QT_PATCH='3'
-    QT_VERSION="${QT_MAJOR}.${QT_MINOR}.${QT_PATCH}"
     QT_DOWNLOAD_BASE_URL="https://download.qt.io/official_releases/qt/${QT_MAJOR}.${QT_MINOR}/${QT_VERSION}/submodules"
     QT_ARCHIVE_FILES=(
         "qtbase-everywhere-src-${QT_VERSION}.tar.xz"
@@ -164,10 +165,18 @@ function install_qt() {
 }
 
 function create_qt_archive() {
+    local ARCHIVE_NAME="qt${QT_MAJOR}-${QT_VERSION}-${DEBIAN_VERSION}-pi4.tar.gz"
+    local ARCHIVE_DESTINATION="/build/release/${ARCHIVE_NAME}"
+
     cd /build
     mkdir -p release && cd release
-    tar -czvf qt-host-binaries-aarch64.tar.gz -C /build/qt6/host .
-    tar -czvf qt-pi-binaries-aarch64.tar.gz -C /build/qt6/pi .
+
+    cd /usr/local
+    tar cfz ${ARCHIVE_DESTINATION} qt6
+
+    # TODO: Uncomment this block when ready.
+    # cd /build/release
+    # sha256sum ${ARCHIVE_NAME} > ${ARCHIVE_DESTINATION}.sha256
 }
 
 function main() {
@@ -176,9 +185,6 @@ function main() {
 
     fix_symbolic_links
     install_qt
-
-    # TODO: Remove this once all the Qt host and target binaries are built successfully.
-    return
 
     create_qt_archive
 }
