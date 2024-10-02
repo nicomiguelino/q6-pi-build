@@ -11,12 +11,16 @@ RUN { \
     git \
     build-essential \
     make \
+    ccache \
     cmake \
     rsync \
     sed \
     libclang-dev \
     ninja-build \
     gcc \
+    g++ \
+    gcc-arm-linux-gnueabihf \
+    g++-arm-linux-gnueabihf \
     bison \
     python3 \
     python3-pip \

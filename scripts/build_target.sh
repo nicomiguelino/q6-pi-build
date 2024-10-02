@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-export TARGET_DEVICE="pi5"
-export TARGET_PLATFORM="linux/arm64"
+export TARGET_DEVICE="pi4"
+export TARGET_PLATFORM="linux/arm/v8"
 
 BUILDX_ARGS=(
     "--platform" "$TARGET_PLATFORM"

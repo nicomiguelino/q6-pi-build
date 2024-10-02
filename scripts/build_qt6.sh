@@ -10,95 +10,6 @@ fi
 
 CORE_COUNT="$(expr $(nproc) - 2)"
 
-function download_toolchain() {
-    mkdir -p cross-tools && cd cross-tools
-
-    BINUTILS_PATH=binutils-2.40.tar.gz
-    GLIBC_PATH=glibc-2.36.tar.gz
-    GCC_PATH=gcc-12.2.0.tar.gz
-
-    if [ ! -f "$BINUTILS_PATH" ]; then
-        wget https://mirror.lyrahosting.com/gnu/binutils/$BINUTILS_PATH
-        tar xf $BINUTILS_PATH
-    fi
-
-    if [ ! -f "$GLIBC_PATH" ]; then
-        wget https://ftp.nluug.nl/pub/gnu/glibc/$GLIBC_PATH
-        tar xf $GLIBC_PATH
-    fi
-
-    if [ ! -f "$GCC_PATH" ]; then
-        wget https://ftp.nluug.nl/pub/gnu/gcc/gcc-12.2.0/$GCC_PATH
-        tar xf $GCC_PATH
-    fi
-
-    if [ ! -d "./linux" ]; then
-        git clone --depth=1 https://github.com/raspberrypi/linux
-    fi
-}
-
-function compile_toolchain() {
-    export PATH=/opt/cross-pi-gcc/bin:$PATH
-    mkdir -p /opt/cross-pi-gcc
-
-    cd /build/cross-tools/linux/
-    KERNEL=kernel8
-    make ARCH=arm64 INSTALL_HDR_PATH=/opt/cross-pi-gcc/aarch64-linux-gnu headers_install
-
-    if [ -d "/opt/cross-pi-gcc/bin" ] && [ "$(ls -A /opt/cross-pi-gcc/bin)" ]; then
-        echo "Toolchain already exists."
-        return
-    fi
-
-    cd ../
-    mkdir -p build-binutils && cd build-binutils
-    ../binutils-2.40/configure --prefix=/opt/cross-pi-gcc --target=aarch64-linux-gnu --with-arch=armv8 --disable-multilib
-    make -j"${CORE_COUNT}"
-    make install
-    echo "Binutils done"
-
-    cd ../
-    sed -i '66a #ifndef PATH_MAX\n#define PATH_MAX 4096\n#endif' /build/cross-tools/gcc-12.2.0/libsanitizer/asan/asan_linux.cpp
-
-    mkdir -p build-gcc && cd build-gcc
-    ../gcc-12.2.0/configure --prefix=/opt/cross-pi-gcc --target=aarch64-linux-gnu --enable-languages=c,c++ --disable-multilib
-    make -j"${CORE_COUNT}" all-gcc
-    make install-gcc
-    echo "Compile glibc partly"
-
-    cd ../
-    mkdir -p build-glibc && cd build-glibc
-    ../glibc-2.36/configure \
-        --prefix=/opt/cross-pi-gcc/aarch64-linux-gnu \
-        --build=$MACHTYPE \
-        --host=aarch64-linux-gnu \
-        --target=aarch64-linux-gnu \
-        --with-headers=/opt/cross-pi-gcc/aarch64-linux-gnu/include \
-        --disable-multilib \
-        libc_cv_forced_unwind=yes
-    make install-bootstrap-headers=yes install-headers
-    make -j"${CORE_COUNT}" csu/subdir_lib
-    install csu/crt1.o csu/crti.o csu/crtn.o /opt/cross-pi-gcc/aarch64-linux-gnu/lib
-    aarch64-linux-gnu-gcc -nostdlib -nostartfiles -shared -x c /dev/null -o /opt/cross-pi-gcc/aarch64-linux-gnu/lib/libc.so
-    touch /opt/cross-pi-gcc/aarch64-linux-gnu/include/gnu/stubs.h
-    echo "Build gcc partly"
-
-    cd ../build-gcc/
-    make -j"${CORE_COUNT}" all-target-libgcc
-    make install-target-libgcc
-    echo "build complete glibc"
-
-    cd ../build-glibc/
-    make -j"${CORE_COUNT}"
-    make install
-    echo "build complete gcc"
-
-    cd ../build-gcc/
-    make -j"${CORE_COUNT}"
-    make install
-    echo "Is finished"
-}
-
 function setup_sysroot() {
     cd /build
     mkdir -p sysroot sysroot/usr sysroot/opt
@@ -154,10 +65,16 @@ function install_qt() {
     QT6_HOST_BUILD_PATH="${QT6_DIR}/host-build"
     QT6_HOST_STAGING_PATH="${QT6_DIR}/host"
     QT6_PI_BUILD_PATH="${QT6_DIR}/pi-build"
-    QT6_PI_STAGING_PATH="${QT6_DIR}/pi"
+    QT6_PI_STAGING_PATH="/usr/local/qt6"
 
     cd /build
-    mkdir -p qt6 qt6/host qt6/pi qt6/host-build qt6/pi-build qt6/src
+    mkdir -p \
+        qt6 \
+        qt6/host \
+        /usr/local/qt6 \
+        qt6/host-build \
+        qt6/pi-build \
+        qt6/src
 
     cd ${QT6_SRC_PATH}
 
@@ -180,27 +97,29 @@ function install_qt() {
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release \
         -DQT_BUILD_EXAMPLES=OFF \
         -DQT_BUILD_TESTS=OFF \
+        -DQT_USE_CCACHE=ON \
         -DCMAKE_INSTALL_PREFIX=${QT6_HOST_STAGING_PATH}
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
     echo "Compile Qt Shader Tools for the Host"
     cd ${QT6_HOST_BUILD_PATH}/qtshadertools-everywhere-src-${QT_VERSION}
-    /build/qt6/host/bin/qt-configure-module .
+    ${QT6_HOST_STAGING_PATH}/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
     echo "Compile Qt Declarative for the Host"
     cd ${QT6_HOST_BUILD_PATH}/qtdeclarative-everywhere-src-${QT_VERSION}
-    /build/qt6/host/bin/qt-configure-module .
+    ${QT6_HOST_STAGING_PATH}/bin/qt-configure-module .
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile Qt WebEngine for host"
-    cd ${QT6_HOST_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
-    /build/qt6/host/bin/qt-configure-module .
-    cmake --build . --parallel "${CORE_COUNT}"
-    cmake --install .
+    # TODO: Uncomment this block when ready.
+    # echo "Compile Qt WebEngine for host"
+    # cd ${QT6_HOST_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
+    # ${QT6_HOST_STAGING_PATH}/bin/qt-configure-module .
+    # cmake --build . --parallel "${CORE_COUNT}"
+    # cmake --install .
 
     cd ${QT6_PI_BUILD_PATH}
 
@@ -212,6 +131,7 @@ function install_qt() {
     cd ${QT6_PI_BUILD_PATH}/qtbase-everywhere-src-${QT_VERSION}
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DINPUT_opengl=es2 \
         -DQT_BUILD_EXAMPLES=OFF -DQT_BUILD_TESTS=OFF \
+        -DQT_USE_CCACHE=ON \
         -DQT_HOST_PATH=${QT6_HOST_STAGING_PATH} \
         -DCMAKE_STAGING_PREFIX=${QT6_PI_STAGING_PATH} \
         -DCMAKE_INSTALL_PREFIX=/usr/local/qt6 \
@@ -233,10 +153,10 @@ function install_qt() {
     cmake --build . --parallel "${CORE_COUNT}"
     cmake --install .
 
-    echo "Compile Qt WebEngine for the Raspberry Pi"
-    cd ${QT6_PI_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
-    ${QT6_PI_STAGING_PATH}/bin/qt-configure-module .
-    # TODO: Uncomment the lines below once the configuration is fixed.
+    # TODO: Uncomment this block when ready.
+    # echo "Compile Qt WebEngine for the Raspberry Pi"
+    # cd ${QT6_PI_BUILD_PATH}/qtwebengine-everywhere-src-${QT_VERSION}
+    # ${QT6_PI_STAGING_PATH}/bin/qt-configure-module .
     # cmake --build . --parallel "${CORE_COUNT}"
     # cmake --install .
 
@@ -247,18 +167,19 @@ function create_qt_archive() {
     cd /build
     mkdir -p release && cd release
     tar -czvf qt-host-binaries-aarch64.tar.gz -C /build/qt6/host .
-    tar -czvf cross-pi-gcc-aarch64.tar.gz -C /opt/cross-pi-gcc .
     tar -czvf qt-pi-binaries-aarch64.tar.gz -C /build/qt6/pi .
 }
 
 function main() {
-    download_toolchain
-    compile_toolchain
     setup_sysroot
     copy_toolchain_cmake
 
     fix_symbolic_links
     install_qt
+
+    # TODO: Remove this once all the Qt host and target binaries are built successfully.
+    return
+
     create_qt_archive
 }
 
