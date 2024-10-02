@@ -13,6 +13,7 @@ QT_MAJOR='6'
 QT_MINOR='6'
 QT_PATCH='3'
 QT_VERSION="${QT_MAJOR}.${QT_MINOR}.${QT_PATCH}"
+QT6_PI_STAGING_PATH="/usr/local/qt6"
 DEBIAN_VERSION='bookworm'
 
 function setup_sysroot() {
@@ -66,7 +67,6 @@ function install_qt() {
     QT6_HOST_BUILD_PATH="${QT6_DIR}/host-build"
     QT6_HOST_STAGING_PATH="${QT6_DIR}/host"
     QT6_PI_BUILD_PATH="${QT6_DIR}/pi-build"
-    QT6_PI_STAGING_PATH="/usr/local/qt6"
 
     cd /build
     mkdir -p \
@@ -179,6 +179,27 @@ function create_qt_archive() {
     # sha256sum ${ARCHIVE_NAME} > ${ARCHIVE_DESTINATION}.sha256
 }
 
+function create_hello_gui_archive() {
+    local ARCHIVE_NAME="hello-gui.tar.gz"
+    local ARCHIVE_DESTINATION="/build/release/${ARCHIVE_NAME}"
+
+    cp -rf /src/examples/hello-2 /build
+    cd /build/hello-2
+    mkdir -p build && cd build
+    ${QT6_PI_STAGING_PATH}/bin/qt-cmake ..
+    cmake --build . --parallel ${CORE_COUNT}
+
+    mkdir -p fakeroot/bin
+    mv Hello fakeroot/bin
+    cd fakeroot
+
+    tar cfz ${ARCHIVE_DESTINATION} .
+
+    # TODO: Uncomment this block when ready.
+    # cd /build/release
+    # sha256sum ${ARCHIVE_NAME} > ${ARCHIVE_DESTINATION}.sha256
+}
+
 function main() {
     setup_sysroot
     copy_toolchain_cmake
@@ -187,6 +208,8 @@ function main() {
     install_qt
 
     create_qt_archive
+
+    create_hello_gui_archive
 }
 
 main
